@@ -11,7 +11,8 @@ output:
 
 #### **Load packages and set language of system time**
 
-```{r message=FALSE,results="hide"}
+
+``` r
 library(dplyr)
 library(data.table)
 Sys.setlocale("LC_TIME","en_US.UTF-8") 
@@ -19,7 +20,8 @@ Sys.setlocale("LC_TIME","en_US.UTF-8")
 
 #### **Download and read data file**
 
-```{r message=FALSE,results="hide"}
+
+``` r
 setwd("D:/GXY's documents/R/5-ReproducibleResearch/week2")
 url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
 download.file(url,"repdata_data_activity.zip",method="curl")
@@ -33,29 +35,45 @@ data <- read.csv("activity.csv",header=TRUE)
 
 #### **Calculate the total number of steps taken per day**
 
-```{r}
+
+``` r
 totalsteps_day <- tapply(data[!is.na(data$steps),]$steps,data[!is.na(data$steps),]$date,sum)
 totalsteps_day <- data.frame(date=names(totalsteps_day),totalsteps=totalsteps_day)
 ```
 
 #### **Plot 1: Histogram of the total number of steps taken each day**
 
-```{r}
+
+``` r
 hist(totalsteps_day$totalsteps,
      breaks=10,
      main="Histogram of the total number of steps taken each day",
      xlab="Total number of steps taken each day")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
+
 #### **Calculate and report the mean and median number of total steps taken each day**
 
-```{r}
+
+``` r
 mean(totalsteps_day$totalsteps)
+```
+
+```
+## [1] 10766.19
+```
+
+``` r
 median(totalsteps_day$totalsteps)
 ```
 
-The mean number of total steps taken each day is `r mean(totalsteps_day$totalsteps)`.\
-The median number of total steps taken each day is `r median(totalsteps_day$totalsteps)`.\
+```
+## [1] 10765
+```
+
+The mean number of total steps taken each day is 1.0766189\times 10^{4}.\
+The median number of total steps taken each day is 10765.\
 
 ------------------------------------------------------------------------
 
@@ -63,7 +81,8 @@ The median number of total steps taken each day is `r median(totalsteps_day$tota
 
 #### **Plot 2: Time series plot of the average number of steps taken (please ignore the "2026-05-09" things, it is like a placeholder for date value which will be eliminated in the final plot)**
 
-```{r}
+
+``` r
 averagesteps_time <- tapply(data[!is.na(data$steps),]$steps,data[!is.na(data$steps),]$interval,mean)
 averagesteps_time <- data.frame(interval=names(averagesteps_time),averagesteps=averagesteps_time) 
 averagesteps_time <- mutate(averagesteps_time,time=sprintf("%04d",as.integer(interval))) 
@@ -82,16 +101,23 @@ axis(side=1,
                      as.POSIXct("2026-05-09 18:00:00"),as.POSIXct("2026-05-10 00:00:00")),"%H:%M"))
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
+
 #### **The 5-minute interval that, on average, contains the maximum number of steps**
 
-```{r}
+
+``` r
 theinterval <- paste(format(as.POSIXct(averagesteps_time[which.max(averagesteps_time$averagesteps),"time"]),"%H:%M"),
                      "-",
                      format(as.POSIXct(averagesteps_time[which.max(averagesteps_time$averagesteps)+1,"time"]),"%H:%M"))
 print(theinterval)
 ```
 
-The 5-minute interval that, on average, contains the maximum number of steps is `r theinterval`.\
+```
+## [1] "08:35 - 08:40"
+```
+
+The 5-minute interval that, on average, contains the maximum number of steps is 08:35 - 08:40.\
 
 ------------------------------------------------------------------------
 
@@ -99,11 +125,16 @@ The 5-minute interval that, on average, contains the maximum number of steps is 
 
 #### **Calculate and report the total number of missing values in the dataset**
 
-```{r}
+
+``` r
 sum(is.na(data$steps))
 ```
 
-The total number of missing values in the dataset is `r sum(is.na(data$steps))`.\
+```
+## [1] 2304
+```
+
+The total number of missing values in the dataset is 2304.\
 
 #### **Devise a strategy for filling in all of the missing values in the dataset**
 
@@ -111,7 +142,8 @@ The strategy for filling in all of the missing values is using the mean for that
 
 #### **Create a new dataset that is equal to the original dataset but with the missing data filled in**
 
-```{r}
+
+``` r
 data_imputed <- data 
 totalsteps_eachday_all <- tapply(data$steps,data$date,sum,na.rm=TRUE)
 totalsteps_eachday_all <- data.frame(date=names(totalsteps_eachday_all),totalsteps=totalsteps_eachday_all)
@@ -134,7 +166,8 @@ for(i in 1:17568){
 
 #### **Plot 3: Histogram of the total number of steps taken each day after missing values are imputed**
 
-```{r}
+
+``` r
 totalsteps_day_imputed <- tapply(data_imputed$steps,data_imputed$date,sum) 
 totalsteps_day_imputed <- data.frame(date=names(totalsteps_day_imputed),totalsteps=totalsteps_day_imputed) 
 hist(totalsteps_day_imputed$totalsteps,
@@ -143,18 +176,33 @@ hist(totalsteps_day_imputed$totalsteps,
      xlab="Total number of steps taken each day")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
+
 #### **Report the mean and median total number of steps taken per day**
 
-```{r}
+
+``` r
 mean(totalsteps_day_imputed$totalsteps)
+```
+
+```
+## [1] 10543.69
+```
+
+``` r
 median(totalsteps_day_imputed$totalsteps)
 ```
 
-The mean number of total steps taken each day is `r mean(totalsteps_day_imputed$totalsteps)`.\
-The median number of total steps taken each day is `r median(totalsteps_day_imputed$totalsteps)`.\
+```
+## [1] 10571
+```
+
+The mean number of total steps taken each day is 1.0543693\times 10^{4}.\
+The median number of total steps taken each day is 1.0571\times 10^{4}.\
 Both mean and median numbers become a little bit lower than before.\
 
-```{r}
+
+``` r
 plot(as.POSIXct(totalsteps_eachday_all$date),
      totalsteps_eachday_all$totalsteps,
      main="Total number of steps taken each day \n before and after imputing missing values",
@@ -170,11 +218,27 @@ abline(v=as.POSIXct(c("2012-10-01","2012-10-08","2012-11-01","2012-11-04","2012-
 legend("topleft",pch=c(1,8),col=c("black","red"),legend=c("before imputing","after imputing"))
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
+
 After imputing the missing values, 8 days with all NA records are filled with simulated values. The accuracy depends on the imputing strategy used, but in general it does not affect too much on the estimates of the total daily number of steps.\
 
-```{r}
+
+``` r
 summary(totalsteps_day$totalsteps)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##      41    8841   10765   10766   13294   21194
+```
+
+``` r
 summary(totalsteps_day_imputed$totalsteps)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##      41    8821   10571   10544   12811   21194
 ```
 
 ------------------------------------------------------------------------
@@ -183,7 +247,8 @@ summary(totalsteps_day_imputed$totalsteps)
 
 #### **Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day**
 
-```{r}
+
+``` r
 data_imputed$date <- as.POSIXct(data_imputed$date) 
 data_imputed <- mutate(data_imputed, day=weekdays(data_imputed$date))
 data_imputed[data_imputed$day %in% c("Monday","Tuesday","Wednesday","Thursday","Friday"),]$day <- "weekday"
@@ -193,7 +258,8 @@ data_imputed$day <- factor(data_imputed$day,levels=c("weekday","weekend"))
 
 #### **Plot 4: Panel plot comparing the average number of steps taken per 5-minute interval across weekdays and weekends: Make a panel plot containing a time series plot (i.e.type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis)**
 
-```{r message=FALSE}
+
+``` r
 data_imputed_time_day <- group_by(data_imputed,day,interval) 
 averagesteps_time_day_imputed <- as.data.table(summarize(data_imputed_time_day,mean(steps))) 
 names(averagesteps_time_day_imputed)[3] <- "averagesteps" 
@@ -217,3 +283,5 @@ axis(side=1,
                      as.POSIXct("2026-05-09 18:00:00"),as.POSIXct("2026-05-10 00:00:00")),"%H:%M")) 
 legend("topright",lty=1,col=c("orange","skyblue"),legend=c("weekday","weekend"))
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
