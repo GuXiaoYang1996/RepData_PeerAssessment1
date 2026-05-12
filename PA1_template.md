@@ -15,6 +15,7 @@ output:
 ``` r
 library(dplyr)
 library(data.table)
+library(ggplot2)
 Sys.setlocale("LC_TIME","en_US.UTF-8") 
 ```
 
@@ -73,7 +74,7 @@ median(totalsteps_day$totalsteps)
 ```
 
 The mean number of total steps taken each day is 1.0766189\times 10^{4}.\
-The median number of total steps taken each day is 10765.\
+The median number of total steps taken each day is 10765.
 
 ------------------------------------------------------------------------
 
@@ -117,7 +118,7 @@ print(theinterval)
 ## [1] "08:35 - 08:40"
 ```
 
-The 5-minute interval that, on average, contains the maximum number of steps is 08:35 - 08:40.\
+The 5-minute interval that, on average, contains the maximum number of steps is 08:35 - 08:40.
 
 ------------------------------------------------------------------------
 
@@ -134,11 +135,11 @@ sum(is.na(data$steps))
 ## [1] 2304
 ```
 
-The total number of missing values in the dataset is 2304.\
+The total number of missing values in the dataset is 2304.
 
 #### **Devise a strategy for filling in all of the missing values in the dataset**
 
-The strategy for filling in all of the missing values is using the mean for that 5-minute interval which would be adjusted by the average total steps per day of surrounding 4 days (if data exists) compared to the average total steps per day for all days.\
+The strategy for filling in all of the missing values is using the mean for that 5-minute interval which would be adjusted by the average total steps per day of surrounding 4 days (if data exists) compared to the average total steps per day for all days.
 
 #### **Create a new dataset that is equal to the original dataset but with the missing data filled in**
 
@@ -199,7 +200,7 @@ median(totalsteps_day_imputed$totalsteps)
 
 The mean number of total steps taken each day is 1.0543693\times 10^{4}.\
 The median number of total steps taken each day is 1.0571\times 10^{4}.\
-Both mean and median numbers become a little bit lower than before.\
+Both mean and median numbers become a little bit lower than before.
 
 
 ``` r
@@ -214,13 +215,14 @@ points(as.POSIXct(totalsteps_day_imputed$date),
        pch=8,
        col="red")
 abline(v=as.POSIXct(c("2012-10-01","2012-10-08","2012-11-01","2012-11-04","2012-11-09","2012-11-10","2012-11-14","2012-11-30")),
-       col="orange",lty=2)
+       col="orange",
+       lty=2)
 legend("topleft",pch=c(1,8),col=c("black","red"),legend=c("before imputing","after imputing"))
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
 
-After imputing the missing values, 8 days with all NA records are filled with simulated values. The accuracy depends on the imputing strategy used, but in general it does not affect too much on the estimates of the total daily number of steps.\
+After imputing the missing values, 8 days with all NA records are filled with simulated values. The accuracy depends on the imputing strategy used, but in general it does not affect too much on the estimates of the total daily number of steps.
 
 
 ``` r
@@ -265,23 +267,17 @@ averagesteps_time_day_imputed <- as.data.table(summarize(data_imputed_time_day,m
 names(averagesteps_time_day_imputed)[3] <- "averagesteps" 
 averagesteps_time_day_imputed <- mutate(averagesteps_time_day_imputed,time=sprintf("%04d",as.integer(interval))) 
 averagesteps_time_day_imputed$time <- as.POSIXct(strptime(paste("2026-05-09",averagesteps_time_day_imputed$time),"%Y-%m-%d %H%M")) 
-plot(averagesteps_time_day_imputed[day=="weekday",]$time,
-     averagesteps_time_day_imputed[day=="weekday",]$averagesteps,
-     col="orange",
-     type="l",
-     main="Time series plot of the average steps taken,\n weekdays vs weekends",xlab="Time (5-minute interval)",
-     ylab="Average steps taken",
-     xaxt="n") 
-points(averagesteps_time_day_imputed[day=="weekend",]$time,
-       averagesteps_time_day_imputed[day=="weekend",]$averagesteps,
-       col="skyblue",
-       type="l") 
-axis(side=1, 
-     at=c(as.POSIXct("2026-05-09 00:00:00"),as.POSIXct("2026-05-09 06:00:00"),as.POSIXct("2026-05-09 12:00:00"),
-          as.POSIXct("2026-05-09 18:00:00"),as.POSIXct("2026-05-10 00:00:00")), 
-     labels=format(c(as.POSIXct("2026-05-09 00:00:00"),as.POSIXct("2026-05-09 06:00:00"),as.POSIXct("2026-05-09 12:00:00"),
-                     as.POSIXct("2026-05-09 18:00:00"),as.POSIXct("2026-05-10 00:00:00")),"%H:%M")) 
-legend("topright",lty=1,col=c("orange","skyblue"),legend=c("weekday","weekend"))
+ggplot(averagesteps_time_day_imputed,aes(time,averagesteps,colour=day))+
+  geom_line(show.legend=FALSE)+
+  facet_grid(day~.)+
+  theme_bw()+
+  ggtitle("Time series plot of the average steps taken, weekdays vs weekends")+
+  xlab("Time (5-minute interval)")+
+  ylab("Average steps taken")+
+  scale_x_datetime(limits=c(as.POSIXct("2026-05-09 00:00:00"),as.POSIXct("2026-05-10 00:00:00")),
+                   breaks=c(as.POSIXct("2026-05-09 00:00:00"),as.POSIXct("2026-05-09 06:00:00"),as.POSIXct("2026-05-09 12:00:00"),
+                            as.POSIXct("2026-05-09 18:00:00"),as.POSIXct("2026-05-10 00:00:00")),
+                   date_labels="%H:%M")
 ```
 
 ![](PA1_template_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
